@@ -60,7 +60,12 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <PreBuildEvent>
-      <Command>if EXIST ..\..\..\game\mod_hl2mp\bin\.\$(TargetFileName) for /f &quot;delims=&quot; %%A in (&apos;attrib &quot;..\..\..\game\mod_hl2mp\bin\.\$(TargetFileName)&quot;&apos;) do set valveTmpIsReadOnly=&quot;%%A&quot;&#x0D;&#x0A;set valveTmpIsReadOnlyLetter=%valveTmpIsReadOnly:~6,1%&#x0D;&#x0A;if &quot;%valveTmpIsReadOnlyLetter%&quot;==&quot;R&quot; del /q &quot;$(TargetDir)&quot;$(TargetFileName)&#x0D;&#x0A;if exist ..\..\devtools\bin\vpc.exe ..\..\devtools\bin\vpc.exe -crc2 client_hl2mp.vcxproj&#x0D;&#x0A;if ERRORLEVEL 1 exit 1&#x0D;&#x0A;</Command>
+      <Command>if EXIST ..\..\..\game\mod_hl2mp\bin\.\$(TargetFileName) for /f "delims=" %%A in ('attrib "..\..\..\game\mod_hl2mp\bin\.\$(TargetFileName)"') do set valveTmpIsReadOnly="%%A"
+set valveTmpIsReadOnlyLetter=%valveTmpIsReadOnly:~6,1%
+if "%valveTmpIsReadOnlyLetter%"=="R" del /q "$(TargetDir)"$(TargetFileName)
+if exist ..\..\devtools\bin\vpc.exe ..\..\devtools\bin\vpc.exe -crc2 client_hl2mp.vcxproj
+if ERRORLEVEL 1 exit 1
+</Command>
     </PreBuildEvent>
     <ClCompile>
       <AdditionalOptions>/MP /Zm200</AdditionalOptions>
@@ -108,7 +113,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(IntDir)/$(TargetName).pdb</ProgramDatabaseFile>
       <SubSystem>Windows</SubSystem>
-      <BaseAddress> </BaseAddress>
+      <BaseAddress>
+      </BaseAddress>
       <TargetMachine>MachineX86</TargetMachine>
       <LinkErrorReporting>PromptImmediately</LinkErrorReporting>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
@@ -125,14 +131,31 @@
     </Bscmake>
     <PostBuildEvent>
       <Message>Publishing to ..\..\..\game\mod_hl2mp\bin\.</Message>
-      <Command>if not exist &quot;..\..\..\game\mod_hl2mp\bin\.&quot; mkdir &quot;..\..\..\game\mod_hl2mp\bin\.&quot;&#x0D;&#x0A;copy &quot;$(TargetDir)$(TargetFileName)&quot; &quot;..\..\..\game\mod_hl2mp\bin\.\$(TargetFileName)&quot;&#x0D;&#x0A;if ERRORLEVEL 1 goto BuildEventFailed&#x0D;&#x0A;if exist &quot;$(TargetDir)$(TargetName).map&quot; copy &quot;$(TargetDir)$(TargetName).map&quot; ..\..\..\game\mod_hl2mp\bin\.\$(TargetName).map&#x0D;&#x0A;copy &quot;$(TargetDir)$(TargetName).pdb&quot; ..\..\..\game\mod_hl2mp\bin\.\$(TargetName).pdb&#x0D;&#x0A;if ERRORLEVEL 1 goto BuildEventFailed&#x0D;&#x0A;goto BuildEventOK&#x0D;&#x0A;:BuildEventFailed&#x0D;&#x0A;echo *** ERROR! PostBuildStep FAILED for $(ProjectName)! EXE or DLL is probably running. ***&#x0D;&#x0A;del /q &quot;$(TargetDir)$(TargetFileName)&quot;&#x0D;&#x0A;exit 1&#x0D;&#x0A;:BuildEventOK&#x0D;&#x0A;</Command>
+      <Command>if not exist "..\..\..\game\mod_hl2mp\bin\." mkdir "..\..\..\game\mod_hl2mp\bin\."
+copy "$(TargetDir)$(TargetFileName)" "..\..\..\game\mod_hl2mp\bin\.\$(TargetFileName)"
+if ERRORLEVEL 1 goto BuildEventFailed
+if exist "$(TargetDir)$(TargetName).map" copy "$(TargetDir)$(TargetName).map" ..\..\..\game\mod_hl2mp\bin\.\$(TargetName).map
+copy "$(TargetDir)$(TargetName).pdb" ..\..\..\game\mod_hl2mp\bin\.\$(TargetName).pdb
+if ERRORLEVEL 1 goto BuildEventFailed
+goto BuildEventOK
+:BuildEventFailed
+echo *** ERROR! PostBuildStep FAILED for $(ProjectName)! EXE or DLL is probably running. ***
+del /q "$(TargetDir)$(TargetFileName)"
+exit 1
+:BuildEventOK
+</Command>
     </PostBuildEvent>
     <CustomBuildStep>
     </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <PreBuildEvent>
-      <Command>if EXIST ..\..\..\game\mod_hl2mp\bin\.\$(TargetFileName) for /f &quot;delims=&quot; %%A in (&apos;attrib &quot;..\..\..\game\mod_hl2mp\bin\.\$(TargetFileName)&quot;&apos;) do set valveTmpIsReadOnly=&quot;%%A&quot;&#x0D;&#x0A;set valveTmpIsReadOnlyLetter=%valveTmpIsReadOnly:~6,1%&#x0D;&#x0A;if &quot;%valveTmpIsReadOnlyLetter%&quot;==&quot;R&quot; del /q &quot;$(TargetDir)&quot;$(TargetFileName)&#x0D;&#x0A;if exist ..\..\devtools\bin\vpc.exe ..\..\devtools\bin\vpc.exe -crc2 client_hl2mp.vcxproj&#x0D;&#x0A;if ERRORLEVEL 1 exit 1&#x0D;&#x0A;</Command>
+      <Command>if EXIST ..\..\..\game\mod_hl2mp\bin\.\$(TargetFileName) for /f "delims=" %%A in ('attrib "..\..\..\game\mod_hl2mp\bin\.\$(TargetFileName)"') do set valveTmpIsReadOnly="%%A"
+set valveTmpIsReadOnlyLetter=%valveTmpIsReadOnly:~6,1%
+if "%valveTmpIsReadOnlyLetter%"=="R" del /q "$(TargetDir)"$(TargetFileName)
+if exist ..\..\devtools\bin\vpc.exe ..\..\devtools\bin\vpc.exe -crc2 client_hl2mp.vcxproj
+if ERRORLEVEL 1 exit 1
+</Command>
     </PreBuildEvent>
     <ClCompile>
       <AdditionalOptions>/MP /Zm200 /d2Zi+</AdditionalOptions>
@@ -185,7 +208,8 @@
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>false</EnableCOMDATFolding>
-      <BaseAddress> </BaseAddress>
+      <BaseAddress>
+      </BaseAddress>
       <TargetMachine>MachineX86</TargetMachine>
       <LinkErrorReporting>PromptImmediately</LinkErrorReporting>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
@@ -202,7 +226,19 @@
     </Bscmake>
     <PostBuildEvent>
       <Message>Publishing to ..\..\..\game\mod_hl2mp\bin\.</Message>
-      <Command>if not exist &quot;..\..\..\game\mod_hl2mp\bin\.&quot; mkdir &quot;..\..\..\game\mod_hl2mp\bin\.&quot;&#x0D;&#x0A;copy &quot;$(TargetDir)$(TargetFileName)&quot; &quot;..\..\..\game\mod_hl2mp\bin\.\$(TargetFileName)&quot;&#x0D;&#x0A;if ERRORLEVEL 1 goto BuildEventFailed&#x0D;&#x0A;if exist &quot;$(TargetDir)$(TargetName).map&quot; copy &quot;$(TargetDir)$(TargetName).map&quot; ..\..\..\game\mod_hl2mp\bin\.\$(TargetName).map&#x0D;&#x0A;copy &quot;$(TargetDir)$(TargetName).pdb&quot; ..\..\..\game\mod_hl2mp\bin\.\$(TargetName).pdb&#x0D;&#x0A;if ERRORLEVEL 1 goto BuildEventFailed&#x0D;&#x0A;goto BuildEventOK&#x0D;&#x0A;:BuildEventFailed&#x0D;&#x0A;echo *** ERROR! PostBuildStep FAILED for $(ProjectName)! EXE or DLL is probably running. ***&#x0D;&#x0A;del /q &quot;$(TargetDir)$(TargetFileName)&quot;&#x0D;&#x0A;exit 1&#x0D;&#x0A;:BuildEventOK&#x0D;&#x0A;</Command>
+      <Command>if not exist "..\..\..\game\mod_hl2mp\bin\." mkdir "..\..\..\game\mod_hl2mp\bin\."
+copy "$(TargetDir)$(TargetFileName)" "..\..\..\game\mod_hl2mp\bin\.\$(TargetFileName)"
+if ERRORLEVEL 1 goto BuildEventFailed
+if exist "$(TargetDir)$(TargetName).map" copy "$(TargetDir)$(TargetName).map" ..\..\..\game\mod_hl2mp\bin\.\$(TargetName).map
+copy "$(TargetDir)$(TargetName).pdb" ..\..\..\game\mod_hl2mp\bin\.\$(TargetName).pdb
+if ERRORLEVEL 1 goto BuildEventFailed
+goto BuildEventOK
+:BuildEventFailed
+echo *** ERROR! PostBuildStep FAILED for $(ProjectName)! EXE or DLL is probably running. ***
+del /q "$(TargetDir)$(TargetFileName)"
+exit 1
+:BuildEventOK
+</Command>
     </PostBuildEvent>
     <CustomBuildStep>
     </CustomBuildStep>
@@ -839,6 +875,7 @@
     <ClInclude Include="toolframework_client.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="js\js_hud_money.cpp" />
     <ClCompile Include="mp3player.cpp" />
     <ClCompile Include="replay\cdll_replay.cpp" />
     <ClCompile Include="replay\replaycamera.cpp" />
@@ -1463,10 +1500,14 @@
   <ItemGroup>
     <CustomBuild Include="client_hl2mp.vpc">
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Running VPC CRC Check - client_hl2mp.vpc</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">if exist $SRCDIR\devtools\bin\vpc.exe $SRCDIR\devtools\bin\vpc.exe -crc2 client_hl2mp.vcxproj&#x0D;&#x0A;if ERRORLEVEL 1 exit 1&#x0D;&#x0A;echo crc_complete &gt; D:\Jeroen\Documents\GitHub\source-sdk-2013\mp\src\game\client\client_hl2mp.vpc.sentinel</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">if exist $SRCDIR\devtools\bin\vpc.exe $SRCDIR\devtools\bin\vpc.exe -crc2 client_hl2mp.vcxproj
+if ERRORLEVEL 1 exit 1
+echo crc_complete &gt; D:\Jeroen\Documents\GitHub\source-sdk-2013\mp\src\game\client\client_hl2mp.vpc.sentinel</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">D:\Jeroen\Documents\GitHub\source-sdk-2013\mp\src\game\client\client_hl2mp.vpc.sentinel</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Running VPC CRC Check - client_hl2mp.vpc</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">if exist $SRCDIR\devtools\bin\vpc.exe $SRCDIR\devtools\bin\vpc.exe -crc2 client_hl2mp.vcxproj&#x0D;&#x0A;if ERRORLEVEL 1 exit 1&#x0D;&#x0A;echo crc_complete &gt; D:\Jeroen\Documents\GitHub\source-sdk-2013\mp\src\game\client\client_hl2mp.vpc.sentinel</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">if exist $SRCDIR\devtools\bin\vpc.exe $SRCDIR\devtools\bin\vpc.exe -crc2 client_hl2mp.vcxproj
+if ERRORLEVEL 1 exit 1
+echo crc_complete &gt; D:\Jeroen\Documents\GitHub\source-sdk-2013\mp\src\game\client\client_hl2mp.vpc.sentinel</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">D:\Jeroen\Documents\GitHub\source-sdk-2013\mp\src\game\client\client_hl2mp.vpc.sentinel</Outputs>
     </CustomBuild>
   </ItemGroup>

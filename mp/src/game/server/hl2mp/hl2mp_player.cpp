@@ -26,6 +26,13 @@
 
 #include "ilagcompensationmanager.h"
 
+//Jeroen Schepens
+//Include the header for buyable
+#include "js/js_item_buyable.h"
+//Include the item definitions
+#include "js/js_item_defs.h"
+//End
+
 int g_iLastCitizenModel = 0;
 int g_iLastCombineModel = 0;
 
@@ -43,6 +50,15 @@ LINK_ENTITY_TO_CLASS( info_player_combine, CPointEntity );
 LINK_ENTITY_TO_CLASS( info_player_rebel, CPointEntity );
 
 IMPLEMENT_SERVERCLASS_ST(CHL2MP_Player, DT_HL2MP_Player)
+	
+	//Jeroen Schepens
+	//Purpose: Money system + Buy System
+	//Send the amount of money to the client
+	SendPropInt( SENDINFO( m_iMoney ) ),
+	SendPropInt( SENDINFO( m_iPrice ) ),
+	SendPropInt( SENDINFO( m_iType ) ),
+	//End
+	
 	SendPropAngle( SENDINFO_VECTORELEM(m_angEyeAngles, 0), 11, SPROP_CHANGES_OFTEN ),
 	SendPropAngle( SENDINFO_VECTORELEM(m_angEyeAngles, 1), 11, SPROP_CHANGES_OFTEN ),
 	SendPropEHandle( SENDINFO( m_hRagdoll ) ),
@@ -111,6 +127,12 @@ CHL2MP_Player::CHL2MP_Player() : m_PlayerAnimState( this )
 	m_bReady = false;
 
 	BaseClass::ChangeTeam( 0 );
+
+	//Jeroen Schepens
+	//Purpose: Money system
+	//Set money to 500 at initial spawn
+	m_iMoney = 500;
+	//End
 	
 //	UseClientSideAnimation();
 }
@@ -1627,3 +1649,34 @@ bool CHL2MP_Player::CanHearAndReadChatFrom( CBasePlayer *pPlayer )
 
 	return true;
 }
+
+//Jeroen Schepens
+//Purpose: Money system
+//Executes if buyable item is in range
+void CHL2MP_Player::PlayerUse(void)
+{
+	BaseClass::PlayerUse();
+
+	CBaseEntity *pUseEntity = FindUseEntity();
+
+	// Found an object
+	if ( pUseEntity )
+	{
+		CBuyableItem* pBuyable = dynamic_cast<CBuyableItem*>(pUseEntity);
+		if (pBuyable) {
+		m_iPrice = pBuyable->GetPrice();
+		m_iType = pBuyable->GetType();
+		}
+		else
+		{
+			m_iPrice = 0;
+			m_iType = 0;
+		}
+	}
+	else
+	{
+		m_iPrice = 0;
+		m_iType = 0;
+	}
+}
+//End

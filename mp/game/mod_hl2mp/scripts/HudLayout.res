@@ -502,4 +502,22 @@
 		"visible"		"0"
 		"enabled"		"0"
 	}
+
+	HudMoney
+	{
+		"fieldName"		"HudMoney"
+		"xpos"	"300"
+		"ypos"	"432"
+		"wide"	"96"
+		"tall"  "36"
+		"visible" "1"
+		"enabled" "1"
+
+		"PaintBackgroundType"	"2"
+ 		
+		"text_xpos" "8"
+		"text_ypos" "20"
+		"digit_xpos" "50"
+		"digit_ypos" "2"
+	}
 }

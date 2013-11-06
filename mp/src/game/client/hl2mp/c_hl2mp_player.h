@@ -127,6 +127,19 @@ private:
 	CNetworkVar( HL2MPPlayerState, m_iPlayerState );	
 
 	bool m_fIsWalking;
+
+	//Jeroen Schepens
+	//Purpose: Money system + Buy System
+	//Declare the client fields and methods
+public:
+	int GetMoney () {return m_iMoney;}
+	int GetPrice () {return m_iPrice;}
+	int GetType () {return m_iType;}
+private:
+	int m_iMoney;
+	int m_iPrice;
+	int m_iType;
+	//End
 };
 
 inline C_HL2MP_Player *ToHL2MPPlayer( CBaseEntity *pEntity )

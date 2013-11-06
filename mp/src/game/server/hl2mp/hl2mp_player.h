@@ -163,6 +163,24 @@ private:
 
     bool m_bEnterObserver;
 	bool m_bReady;
+
+	//Jeroen Schepens
+	//Purpose: Money system + Buy system 
+	//Declare the server fields and methods
+public:
+	virtual void PlayerUse();
+	int GetMoney() {return m_iMoney;}
+	void AddMoney(int amount) {m_iMoney += amount;}
+	void SubtractMoney(int amount) {m_iMoney -= amount;}
+	int GetPrice() {return m_iPrice;}
+	void SetPrice(int price) {m_iPrice = price;}
+	int GetType() {return m_iType;}
+	void SetType(int type) {m_iType = type;}
+private:
+	CNetworkVar(int, m_iMoney);
+	CNetworkVar(int, m_iPrice);
+	CNetworkVar(int, m_iType);
+	//End
 };
 
 inline CHL2MP_Player *ToHL2MPPlayer( CBaseEntity *pEntity )

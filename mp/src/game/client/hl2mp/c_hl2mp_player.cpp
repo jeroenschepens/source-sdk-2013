@@ -23,6 +23,15 @@
 LINK_ENTITY_TO_CLASS( player, C_HL2MP_Player );
 
 IMPLEMENT_CLIENTCLASS_DT(C_HL2MP_Player, DT_HL2MP_Player, CHL2MP_Player)
+
+	//Jeroen Schepens
+	//Purpose: Money system
+	//Receives the amount of money from the server
+	RecvPropInt( RECVINFO( m_iMoney ) ),
+	RecvPropInt( RECVINFO( m_iPrice ) ),
+	RecvPropInt( RECVINFO( m_iType ) ),
+	//End
+
 	RecvPropFloat( RECVINFO( m_angEyeAngles[0] ) ),
 	RecvPropFloat( RECVINFO( m_angEyeAngles[1] ) ),
 	RecvPropEHandle( RECVINFO( m_hRagdoll ) ),

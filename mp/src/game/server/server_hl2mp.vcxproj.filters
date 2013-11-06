@@ -43,6 +43,9 @@
     <Filter Include="VPC Scripts">
       <UniqueIdentifier>{A40EE377-781A-C6B9-0C7C-B3BE118D248E}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\JS">
+      <UniqueIdentifier>{015c0419-e8f9-4135-ad39-cb015767f6c1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Library Include="..\..\lib\public\libprotobuf.lib">
@@ -1825,6 +1828,12 @@
     </ClInclude>
     <ClInclude Include="toolframework_server.h">
       <Filter>Tools Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="js\js_item_buyable.h">
+      <Filter>Source Files\JS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\js\js_item_defs.h">
+      <Filter>Source Files\JS</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
