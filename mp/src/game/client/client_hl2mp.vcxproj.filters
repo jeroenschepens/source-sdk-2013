@@ -58,9 +58,6 @@
     <Filter Include="VPC Scripts">
       <UniqueIdentifier>{A40EE377-781A-C6B9-0C7C-B3BE118D248E}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\HL2MP\JS">
-      <UniqueIdentifier>{8d5712a8-b3f6-4628-9a78-2fb5ede4626d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\JS">
       <UniqueIdentifier>{bb3cfc93-de93-4f99-8ced-d48ebbc273c2}</UniqueIdentifier>
     </Filter>
@@ -1949,6 +1946,12 @@
     <ClInclude Include="toolframework_client.h">
       <Filter>Tool Framework</Filter>
     </ClInclude>
+    <ClInclude Include="js\sdk_backgroundpanel.h">
+      <Filter>Source Files\JS</Filter>
+    </ClInclude>
+    <ClInclude Include="js\js_teammenu.h">
+      <Filter>Source Files\JS</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="mp3player.cpp">
@@ -3508,8 +3511,14 @@
     <ClCompile Include="toolframework_client.cpp">
       <Filter>Tool Framework</Filter>
     </ClCompile>
+    <ClCompile Include="js\sdk_backgroundpanel.cpp">
+      <Filter>Source Files\JS</Filter>
+    </ClCompile>
     <ClCompile Include="js\js_hud_money.cpp">
-      <Filter>Source Files\HL2MP\JS</Filter>
+      <Filter>Source Files\JS</Filter>
+    </ClCompile>
+    <ClCompile Include="js\js_teammenu.cpp">
+      <Filter>Source Files\JS</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

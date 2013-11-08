@@ -147,6 +147,11 @@ public:
 	void	CheckAllPlayersReady( void );
 
 	virtual bool IsConnectedUserInfoChangeAllowed( CBasePlayer *pPlayer );
+
+	//Jeroen Schepens
+	//Method for auto-assign team
+	int SelectDefaultTeam( void );
+	//JS-End
 	
 private:
 	

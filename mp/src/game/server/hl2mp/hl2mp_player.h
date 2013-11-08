@@ -168,6 +168,9 @@ private:
 	//Purpose: Money system + Buy system 
 	//Declare the server fields and methods
 public:
+
+	//Override intialspawn to set last death time
+	virtual void InitialSpawn( void );
 	virtual void PlayerUse();
 	int GetMoney() {return m_iMoney;}
 	void AddMoney(int amount) {m_iMoney += amount;}

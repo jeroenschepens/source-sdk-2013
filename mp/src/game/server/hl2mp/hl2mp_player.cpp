@@ -27,11 +27,21 @@
 #include "ilagcompensationmanager.h"
 
 //Jeroen Schepens
+//Include the viewport panel names
+#include "viewport_panel_names.h"
 //Include the header for buyable
 #include "js/js_item_buyable.h"
 //Include the item definitions
 #include "js/js_item_defs.h"
+//Define the respawn time
+#define RESPAWN_TIME 10
 //End
+
+//Jeroen Schepens
+//refers to respawn method in hl2mp_client.cpp, not inherited from baseclass
+//Need this because the PlayerDeathThink method is rewritten instead of calling the baseclass
+extern void respawn(CBaseEntity *pEdict, bool fCopyCorpse);
+//JS-End
 
 int g_iLastCitizenModel = 0;
 int g_iLastCombineModel = 0;
@@ -57,7 +67,7 @@ IMPLEMENT_SERVERCLASS_ST(CHL2MP_Player, DT_HL2MP_Player)
 	SendPropInt( SENDINFO( m_iMoney ) ),
 	SendPropInt( SENDINFO( m_iPrice ) ),
 	SendPropInt( SENDINFO( m_iType ) ),
-	//End
+	//JS-End
 	
 	SendPropAngle( SENDINFO_VECTORELEM(m_angEyeAngles, 0), 11, SPROP_CHANGES_OFTEN ),
 	SendPropAngle( SENDINFO_VECTORELEM(m_angEyeAngles, 1), 11, SPROP_CHANGES_OFTEN ),
@@ -132,7 +142,7 @@ CHL2MP_Player::CHL2MP_Player() : m_PlayerAnimState( this )
 	//Purpose: Money system
 	//Set money to 500 at initial spawn
 	m_iMoney = 500;
-	//End
+	//JS-End
 	
 //	UseClientSideAnimation();
 }
@@ -276,8 +286,13 @@ void CHL2MP_Player::PickDefaultSpawnTeam( void )
 				ChangeTeam( TEAM_UNASSIGNED );
 			}
 		}
+		//Jeroen Schepens
+		//No random teams, you can choose your team instead :)
+
+		/*
 		else
 		{
+			
 			CTeam *pCombine = g_Teams[TEAM_COMBINE];
 			CTeam *pRebels = g_Teams[TEAM_REBELS];
 
@@ -300,7 +315,8 @@ void CHL2MP_Player::PickDefaultSpawnTeam( void )
 					ChangeTeam( random->RandomInt( TEAM_COMBINE, TEAM_REBELS ) );
 				}
 			}
-		}
+		}*/
+		//End
 	}
 }
 
@@ -597,11 +613,121 @@ void CHL2MP_Player::PostThink( void )
 	SetLocalAngles( angles );
 }
 
+//Jeroen Schepens
+//Rewrite this method instead of calling baseclass so we can do our own stuff!
 void CHL2MP_Player::PlayerDeathThink()
 {
 	if( !IsObserver() )
 	{
-		BaseClass::PlayerDeathThink();
+		//BaseClass::PlayerDeathThink();
+		float flForward;
+
+		SetNextThink( gpGlobals->curtime + 0.1f );
+
+		if (GetFlags() & FL_ONGROUND)
+		{
+			flForward = GetAbsVelocity().Length() - 20;
+			if (flForward <= 0)
+			{
+				SetAbsVelocity( vec3_origin );
+			}
+			else
+			{
+				Vector vecNewVelocity = GetAbsVelocity();
+				VectorNormalize( vecNewVelocity );
+				vecNewVelocity *= flForward;
+				SetAbsVelocity( vecNewVelocity );
+			}
+		}
+
+		if ( HasWeapons() )
+		{
+			// we drop the guns here because weapons that have an area effect and can kill their user
+			// will sometimes crash coming back from CBasePlayer::Killed() if they kill their owner because the
+			// player class sometimes is freed. It's safer to manipulate the weapons once we know
+			// we aren't calling into any of their code anymore through the player pointer.
+			PackDeadPlayerItems();
+		}
+
+		if (GetModelIndex() && (!IsSequenceFinished()) && (m_lifeState == LIFE_DYING))
+		{
+			StudioFrameAdvance( );
+
+			m_iRespawnFrames++;
+			if ( m_iRespawnFrames < 60 )  // animations should be no longer than this
+				return;
+		}
+
+		if (m_lifeState == LIFE_DYING)
+		{
+			m_lifeState = LIFE_DEAD;
+			m_flDeathAnimTime = gpGlobals->curtime;
+		}
+
+		StopAnimation();
+
+		IncrementInterpolationFrame();
+		m_flPlaybackRate = 0.0;
+
+		int fAnyButtonDown = (m_nButtons & ~IN_SCORE);
+
+		// Strip out the duck key from this check if it's toggled
+		if ( (fAnyButtonDown & IN_DUCK) && GetToggledDuckState())
+		{
+			fAnyButtonDown &= ~IN_DUCK;
+		}
+
+		// wait for all buttons released
+		if (m_lifeState == LIFE_DEAD)
+		{
+			if (fAnyButtonDown)
+				return;
+
+			if ( g_pGameRules->FPlayerCanRespawn( this ) )
+			{
+				m_lifeState = LIFE_RESPAWNABLE;
+			}
+
+			return;
+		}
+
+		// if the player has been dead for one second longer than allowed by forcerespawn, 
+		// forcerespawn isn't on. Send the player off to an intermission camera until they 
+		// choose to respawn.
+		if ( g_pGameRules->IsMultiplayer() && ( gpGlobals->curtime > (m_flDeathTime + DEATH_ANIMATION_TIME) ) && !IsObserver() )
+		{
+			// go to dead camera. 
+			StartObserverMode( m_iObserverLastMode );
+		}
+
+		// wait for any button down,  or mp_forcerespawn is set and the respawn time is up
+
+		//Unassigned players cannot spawn in teamplay
+		if (g_pGameRules->IsTeamplay() && GetTeamNumber() == TEAM_UNASSIGNED)
+		{
+			//if (!fAnyButtonDown 
+			//	&& !( g_pGameRules->IsMultiplayer() && forcerespawn.GetInt() > 0 && (gpGlobals->curtime > (m_flDeathTime + 5))) )
+			return;
+		}
+		//All other players must spawn!
+		else
+		{
+			//Respawn after RESPAWN_TIME (10 seconds)
+			if (!(gpGlobals->curtime > (m_flDeathTime + RESPAWN_TIME)))
+			{
+				return;
+			}
+		}
+
+
+
+		m_nButtons = 0;
+		m_iRespawnFrames = 0;
+
+		//Msg( "Respawn\n");
+
+		respawn( this, !IsObserver() );// don't copy a corpse if we're in deathcam.
+		SetNextThink( TICK_NEVER_THINK );
 	}
 }
 
@@ -963,48 +1089,148 @@ void CHL2MP_Player::ChangeTeam( int iTeam )
 	}
 }
 
+//Jeroen Schepens
+//Join team command
 bool CHL2MP_Player::HandleCommand_JoinTeam( int team )
 {
-	if ( !GetGlobalTeam( team ) || team == 0 )
+	//If teamplay is true, use this algorithm, for assigning teams
+	//Based on SDK template mod
+	if ( HL2MPRules()->IsTeamplay())
 	{
-		Warning( "HandleCommand_JoinTeam( %d ) - invalid team index.\n", team );
-		return false;
-	}
-
-	if ( team == TEAM_SPECTATOR )
-	{
-		// Prevent this is the cvar is set
-		if ( !mp_allowspectators.GetInt() )
+		CHL2MPRules *mp = HL2MPRules();
+		int iOldTeam = GetTeamNumber();
+		if ( !GetGlobalTeam( team ) )
 		{
-			ClientPrint( this, HUD_PRINTCENTER, "#Cannot_Be_Spectator" );
+			Warning( "HandleCommand_JoinTeam( %d ) - invalid team index.\n", team );
 			return false;
 		}
 
-		if ( GetTeamNumber() != TEAM_UNASSIGNED && !IsDead() )
+
+		// If we already died and changed teams once, deny
+		/*if( m_bTeamChanged && team != TEAM_SPECTATOR && iOldTeam != TEAM_SPECTATOR )
 		{
-			m_fNextSuicideTime = gpGlobals->curtime;	// allow the suicide to work
+		ClientPrint( this, HUD_PRINTCENTER, "game_switch_teams_once" );
+		return true;
+		}*/
 
-			CommitSuicide();
+		if ( team == TEAM_UNASSIGNED )
+		{
+			// Attempt to auto-select a team, may set team to T, CT or SPEC
+			team = mp->SelectDefaultTeam();
 
-			// add 1 to frags to balance out the 1 subtracted for killing yourself
-			IncrementFragCount( 1 );
+			if ( team == TEAM_UNASSIGNED )
+			{
+				// still team unassigned, try to kick a bot if possible	
+
+				ClientPrint( this, HUD_PRINTTALK, "#All_Teams_Full" );
+
+				team = TEAM_SPECTATOR;
+			}
 		}
 
-		ChangeTeam( TEAM_SPECTATOR );
+		if ( team == iOldTeam )
+			return true;	// we wouldn't change the team
 
+		/*
+		if ( mp->TeamFull( team ) )
+		{
+		if ( team == SDK_TEAM_BLUE )
+		{
+		ClientPrint( this, HUD_PRINTTALK, "#BlueTeam_Full" );
+		}
+		else if ( team == SDK_TEAM_RED )
+		{
+		ClientPrint( this, HUD_PRINTTALK, "#RedTeam_Full" );
+		}
+		ShowViewPortPanel( PANEL_TEAM );
+		return false;
+		}*/
+
+
+		if ( team == TEAM_SPECTATOR )
+		{
+
+
+			// Prevent this if the cvar is set
+			if ( !mp_allowspectators.GetInt() && !IsHLTV() )
+			{
+				ClientPrint( this, HUD_PRINTTALK, "#Cannot_Be_Spectator" );
+				ShowViewPortPanel( PANEL_TEAM );
+				return false;
+			}
+
+			ChangeTeam( TEAM_SPECTATOR );
+			return true;
+		}
+		else
+		{
+
+			if (iOldTeam == TEAM_SPECTATOR)
+			{
+
+				m_takedamage = DAMAGE_NO;
+				pl.deadflag = true;
+				m_lifeState = LIFE_DEAD;
+				AddEffects( EF_NODRAW );
+				//ChangeTeam( TEAM_UNASSIGNED );
+				SetThink( NULL );
+				StopObserverMode();
+				State_Transition(STATE_ACTIVE);
+				SetMoveType( MOVETYPE_NONE );
+			}
+		}
+
+		ChangeTeam( team );
 		return true;
 	}
+	//Normal HL2MP jointeam code, if teamplay is false
 	else
 	{
-		StopObserverMode();
-		State_Transition(STATE_ACTIVE);
+
+		if ( !GetGlobalTeam( team ) || team == 0 )
+		{
+			Warning( "HandleCommand_JoinTeam( %d ) - invalid team index.\n", team );
+			return false;
+		}
+
+		if ( team == TEAM_SPECTATOR )
+		{
+			// Prevent this is the cvar is set
+			if ( !mp_allowspectators.GetInt() )
+			{
+				ClientPrint( this, HUD_PRINTCENTER, "#Cannot_Be_Spectator" );
+				return false;
+			}
+
+			if ( GetTeamNumber() != TEAM_UNASSIGNED && !IsDead() )
+			{
+				m_fNextSuicideTime = gpGlobals->curtime;	// allow the suicide to work
+
+				CommitSuicide();
+
+				// add 1 to frags to balance out the 1 subtracted for killing yourself
+				IncrementFragCount( 1 );
+			}
+
+			ChangeTeam( TEAM_SPECTATOR );
+
+			return true;
+		}
+
+		else
+		{
+			StopObserverMode();
+			State_Transition(STATE_ACTIVE);
+		}
+
+		// Switch their actual team...
+		ChangeTeam( team );
+
+		return true;
+
 	}
-
-	// Switch their actual team...
-	ChangeTeam( team );
-
-	return true;
 }
+//End
 
 bool CHL2MP_Player::ClientCommand( const CCommand &args )
 {
@@ -1679,4 +1905,13 @@ void CHL2MP_Player::PlayerUse(void)
 		m_iType = 0;
 	}
 }
-//End
+
+//Jeroen Schepens
+//Override initial spawn to set the last death time
+//in order to spawn right after you join the server
+void CHL2MP_Player::InitialSpawn( void )
+{
+	BaseClass::InitialSpawn();
+	m_flDeathTime = gpGlobals->curtime - RESPAWN_TIME -1;
+}
+//JS-End

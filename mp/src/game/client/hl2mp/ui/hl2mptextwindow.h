@@ -22,6 +22,11 @@ class CHL2MPTextWindow : public CTextWindow
 {
 private:
 	DECLARE_CLASS_SIMPLE( CHL2MPTextWindow, CTextWindow );
+	//Jeroen Schepens
+	//Override to show teammenu after closing
+	// VGUI2 override
+	void OnCommand( const char *command);
+	//JS-End
 
 public:
 	CHL2MPTextWindow(IViewPort *pViewPort);

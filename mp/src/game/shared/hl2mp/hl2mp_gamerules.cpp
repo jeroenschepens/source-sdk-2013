@@ -1277,4 +1277,64 @@ const char *CHL2MPRules::GetChatFormat( bool bTeamOnly, CBasePlayer *pPlayer )
 	return pszFormat;
 }
 
+//Jeroen Schepens
+//Method for auto-assign team
+int CHL2MPRules::SelectDefaultTeam()
+{
+	int team = TEAM_UNASSIGNED;
+
+	CTeam *pBlue = g_Teams[TEAM_COMBINE];
+	CTeam *pRed = g_Teams[TEAM_REBELS];
+
+	int iNumBlue = pBlue->GetNumPlayers();
+	int iNumRed = pRed->GetNumPlayers();
+
+	int iBluePoints = pBlue->GetScore();
+	int iRedPoints  = pRed->GetScore();
+
+	// Choose the team that's lacking players
+	if ( iNumBlue < iNumRed )
+	{
+		team = TEAM_COMBINE;
+	}
+	else if ( iNumBlue > iNumRed )
+	{
+		team = TEAM_REBELS;
+	}
+	// choose the team with fewer points
+	else if ( iBluePoints < iRedPoints )
+	{
+		team = TEAM_COMBINE;
+	}
+	else if ( iBluePoints > iRedPoints )
+	{
+		team = TEAM_REBELS;
+	}
+	else
+	{
+		// Teams and scores are equal, pick a random team
+		team = ( random->RandomInt(0,1) == 0 ) ? TEAM_COMBINE : TEAM_REBELS;		
+	}
+
+	/*if ( TeamFull( team ) )
+	{
+		// Pick the opposite team
+		if ( team == TEAM_COMBINE )
+		{
+			team = TEAM_REBELS;
+		}
+		else
+		{
+			team = SDK_TEAM_BLUE;
+		}
+
+		// No choices left
+		if ( TeamFull( team ) )
+			return TEAM_UNASSIGNED;
+	}*/
+
+	return team;
+}
+//JS-End
+
 #endif

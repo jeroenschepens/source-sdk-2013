@@ -171,4 +171,13 @@ void CHL2MPSpectatorGUI::Update()
 	}
 }
 
-
+//Jeroen Schepens
+//Override to show teammenu after closing
+// VGUI2 override
+void CHL2MPTextWindow::OnCommand( const char *command)
+{
+	BaseClass::OnCommand(command);
+	//The panel closes after a command has been given, now open the panel!
+	gViewPortInterface->ShowPanel( PANEL_TEAM, true );
+}
+//JS-End

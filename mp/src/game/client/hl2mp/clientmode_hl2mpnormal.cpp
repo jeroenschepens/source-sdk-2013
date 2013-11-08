@@ -18,7 +18,12 @@
 #include "hl2mpclientscoreboard.h"
 #include "hl2mptextwindow.h"
 #include "ienginevgui.h"
-
+//Jeroen Schepens
+//Include the gamerules
+#include "hl2mp_gamerules.h"
+//Include the team menu
+#include "js/js_teammenu.h"
+//End
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 //-----------------------------------------------------------------------------
@@ -41,6 +46,21 @@ ClientModeHL2MPNormal* GetClientModeHL2MPNormal()
 	return static_cast< ClientModeHL2MPNormal* >( GetClientModeNormal() );
 }
 
+//Jeroen Schepens
+//Command for choosing a team, opens team menu
+CON_COMMAND_F( changeteam, "Choose a new team", FCVAR_SERVER_CAN_EXECUTE|FCVAR_CLIENTCMD_CAN_EXECUTE )
+{
+	if ( HL2MPRules()->IsTeamplay())
+	{
+		gViewPortInterface->ShowPanel( PANEL_TEAM, true );
+	}
+	else
+	{
+		Warning( "Ge zit nie in un team verrekte kut!\n" );
+	}
+}
+//End
+
 //-----------------------------------------------------------------------------
 // Purpose: this is the viewport that contains all the hud elements
 //-----------------------------------------------------------------------------
@@ -60,7 +80,21 @@ protected:
 	}
 
 	virtual IViewPortPanel *CreatePanelByName( const char *szPanelName );
+
+	//Jeroen Schepens
+	//Virtual method for createdefaultpanels
+	virtual void CreateDefaultPanels( void );
+	//End
 };
+
+//Jeroen Schepens
+//Override method for createdefaultpanels, to add teammenu panel
+void CHudViewport::CreateDefaultPanels( void )
+{
+	AddNewPanel( CreatePanelByName( PANEL_TEAM ), "PANEL_TEAM" );
+	BaseClass::CreateDefaultPanels();
+}
+//End
 
 int ClientModeHL2MPNormal::GetDeathMessageStartHeight( void )
 {
@@ -86,7 +120,14 @@ IViewPortPanel* CHudViewport::CreatePanelByName( const char *szPanelName )
 		newpanel = new CHL2MPSpectatorGUI( this );	
 		return newpanel;
 	}
-
+	//Jeroen Schepens
+	//Team menu
+	else if ( Q_strcmp(PANEL_TEAM, szPanelName) == 0 )
+	{
+		newpanel = new CSDKTeamMenu( this );	
+		return newpanel;
+	}
+	//JS-End
 	
 	return BaseClass::CreatePanelByName( szPanelName ); 
 }

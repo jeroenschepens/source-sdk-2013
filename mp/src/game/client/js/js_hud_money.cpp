@@ -94,7 +94,7 @@ void CHudMoney::OnThink( void )
 	C_HL2MP_Player *pPlayer = C_HL2MP_Player::GetLocalHL2MPPlayer();
 	if ( pPlayer )
 		SetDisplayValue(pPlayer->GetMoney());
-
+	/*
 	switch( pPlayer->GetTeamNumber() )
 	{
 #if defined ( SDK_USE_TEAMS )
@@ -116,6 +116,6 @@ void CHudMoney::OnThink( void )
 
 		}
 		break;		
-	}
+	}*/
 
 }

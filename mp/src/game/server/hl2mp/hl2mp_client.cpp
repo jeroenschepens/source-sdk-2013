@@ -41,8 +41,29 @@ extern bool			g_fGameOver;
 void FinishClientPutInServer( CHL2MP_Player *pPlayer )
 {
 	pPlayer->InitialSpawn();
+	//Jeroen Schepens
+	//Show the team selection menu if teamplay is true
+	//if ( HL2MPRules()->IsTeamplay())
+	//{
+	//	pPlayer->ShowViewPortPanel( PANEL_TEAM );
+	//}
+
 	pPlayer->Spawn();
 
+	//Make sure the teamplay init spawn is executed when teamplay is true
+	if ( HL2MPRules()->IsTeamplay())
+	{
+		
+		pPlayer->m_takedamage = DAMAGE_NO;
+		pPlayer->pl.deadflag = true;
+		pPlayer->m_lifeState = LIFE_DEAD;
+		pPlayer->AddEffects( EF_NODRAW );
+		pPlayer->ChangeTeam( TEAM_UNASSIGNED );
+		pPlayer->SetThink( NULL );
+		//pPlayer->MoveToNextIntroCamera();
+		//pPlayer->SetMoveType( MOVETYPE_NONE );
+	}
+	//JS-End
 
 	char sName[128];
 	Q_strncpy( sName, pPlayer->GetPlayerName(), sizeof( sName ) );

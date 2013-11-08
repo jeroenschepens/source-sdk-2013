@@ -25,6 +25,10 @@ public:
 	CHL2MPClientScoreBoardDialog(IViewPort *pViewPort);
 	~CHL2MPClientScoreBoardDialog();
 
+	//Jeroen Schepens
+	//Override to prevent unassigned players from opening the panel
+	virtual void ShowPanel( bool bShow );
+	//JS-End
 
 protected:
 	// scoreboard overrides

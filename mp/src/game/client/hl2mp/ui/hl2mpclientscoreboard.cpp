@@ -651,3 +651,29 @@ void CHL2MPClientScoreBoardDialog::UpdatePlayerInfo()
 
 	
 }
+
+//Jeroen Schepens
+//Override to prevent unassigned players from opening the panel
+void CHL2MPClientScoreBoardDialog::ShowPanel( bool bShow )
+{
+	//Unassigned players in teamplay may not open the scoreboard, they must first choose a team!
+	//This causes a bug otherwise!
+	C_HL2MP_Player *pPlayer = C_HL2MP_Player::GetLocalHL2MPPlayer();
+
+	if (pPlayer)
+	{
+		if ((pPlayer->GetTeamNumber() == TEAM_UNASSIGNED && HL2MPRules()->IsTeamplay()))
+		{
+			BaseClass::ShowPanel(false);
+		}
+		else
+		{
+			BaseClass::ShowPanel(bShow);
+		}
+	}
+	else
+	{
+		BaseClass::ShowPanel(bShow);
+	}
+}
+//JS-End

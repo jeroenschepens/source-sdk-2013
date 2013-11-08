@@ -522,6 +522,8 @@ exit 1
     <ClInclude Include="iviewrender.h" />
     <ClInclude Include="iviewrender_beams.h" />
     <ClInclude Include="ivmodemanager.h" />
+    <ClInclude Include="js\js_teammenu.h" />
+    <ClInclude Include="js\sdk_backgroundpanel.h" />
     <ClInclude Include="kbutton.h" />
     <ClInclude Include="..\..\common\language.h" />
     <ClInclude Include="lerp_functions.h" />
@@ -876,6 +878,8 @@ exit 1
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="js\js_hud_money.cpp" />
+    <ClCompile Include="js\js_teammenu.cpp" />
+    <ClCompile Include="js\sdk_backgroundpanel.cpp" />
     <ClCompile Include="mp3player.cpp" />
     <ClCompile Include="replay\cdll_replay.cpp" />
     <ClCompile Include="replay\replaycamera.cpp" />
